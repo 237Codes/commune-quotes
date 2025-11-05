@@ -1,30 +1,33 @@
-name: Validate Quotes File
+name: Validate PR Changes
 
 on:
   pull_request:
-    branches:
-      - project   # or main if you're merging to main
+    types: [opened, synchronize, reopened]
 
 jobs:
-  validate:
+  check-files:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Check modified files
+      - name: Get list of changed files
+        id: changes
         run: |
-          echo "Checking changed files..."
-          CHANGED_FILES=$(jq -r '.pull_request.files[].filename' <<< "$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files)")
-          
-          # Allow only quotes.json
-          for file in $CHANGED_FILES; do
-            if [[ "$file" != "public/quotes.json" ]]; then
-              echo "❌ Error: Pull requests may only modify public/quotes.json"
-              echo "You changed: $file"
+          echo "CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})" >> $GITHUB_ENV
+
+      - name: Validate only quotes.json changed
+        run: |
+          ALLOWED_FILE="backend/quotes.json"
+          echo "Changed files: ${CHANGED}"
+
+          for FILE in ${CHANGED}; do
+            if [ "$FILE" != "$ALLOWED_FILE" ]; then
+              echo "❌ Invalid file changed: $FILE"
+              echo "Only $ALLOWED_FILE can be modified in PRs."
               exit 1
             fi
           done
 
-          echo "✅ Valid pull request: Only quotes.json changed."
+          echo "✅ All changes are valid."
