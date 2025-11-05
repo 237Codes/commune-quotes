@@ -18,5 +18,9 @@
   {
     "author": "Alan Turing",
     "quote": "I believe that at the end of the day, programming is just problem solving. If you can solve a problem, you can program."
+  },
+  {
+    "author": "Linus Torvalds",
+    "quote": "Talk is cheap. Show me the code."
   }
 ]
