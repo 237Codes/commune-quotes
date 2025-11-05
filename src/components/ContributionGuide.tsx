@@ -56,9 +56,9 @@ const ContributionGuide = () => {
   return (
     <section className="container mx-auto max-w-6xl px-6 py-16">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-foreground mb-3">Contribute Your Own Quote</h2>
+        <h2 className="text-3xl font-bold text-foreground mb-3">How to Contribute</h2>
         <p className="text-muted-foreground text-lg">
-          Fork, edit, and submit your own quote to the board
+          Follow these simple steps to add your quote to the board
         </p>
       </div>
 
