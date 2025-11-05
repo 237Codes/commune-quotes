@@ -1,42 +1,33 @@
-name: Validate Quotes File
+name: Validate PR Changes
 
 on:
   pull_request:
-    branches:
-      - project
+    types: [opened, synchronize, reopened]
 
 jobs:
-  validate:
+  check-files:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Get changed files
+      - name: Get list of changed files
         id: changes
         run: |
-          echo "Fetching changed files..."
-          FILES=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
-            | jq -r '.[].filename')
-
-          echo "Changed files:"
-          echo "$FILES"
-          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})" >> $GITHUB_ENV
 
       - name: Validate only quotes.json changed
         run: |
-          ALLOWED_FILE="public/quotes.json"
+          ALLOWED_FILE="backend/quotes.json"
+          echo "Changed files: ${CHANGED}"
 
-          for file in ${{ steps.changes.outputs.files }}; do
-            if [[ "$file" != "$ALLOWED_FILE" ]]; then
-              echo "❌ Error: Pull requests may ONLY modify $ALLOWED_FILE"
-              echo "You changed: $file"
+          for FILE in ${CHANGED}; do
+            if [ "$FILE" != "$ALLOWED_FILE" ]; then
+              echo "❌ Invalid file changed: $FILE"
+              echo "Only $ALLOWED_FILE can be modified in PRs."
               exit 1
             fi
           done
 
-          echo "✅ Valid pull request: Only $ALLOWED_FILE changed."
+          echo "✅ All changes are valid."
