@@ -17,7 +17,7 @@ const Hero = () => {
           <p className="text-xl text-white/90 max-w-2xl mx-auto">
             Quotes added by students during the Git & GitHub workshop. 
             <br />
-            Fork, edit, and submit your own!
+            Contribute and submit your own!
           </p>
         </div>
       </div>
